@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from rknn.api import RKNN
+from rknn_model import RKNN_Model
 import os
 import shutil
 import glob
@@ -203,21 +203,7 @@ class TextDetector:
         self.iou_threshold = iou_threshold
         self.class_names = class_names or ["object"]
         self.input_shape = (320, 320)
-        self.rknn = RKNN()
-        ret = self.rknn.load_rknn(model_file)
-        if ret != 0:
-            print("Load RKNN model failed")
-            exit(ret)
-        ret = self.rknn.init_runtime(
-            target="rk3588",
-            device_id=None,
-            perf_debug=False,
-            eval_mem=False,
-            async_mode=False,
-        )
-        if ret != 0:
-            print("Init runtime environment failed")
-            exit(ret)
+        self.rknn_model = RKNN_Model(model_file)
 
     def preprocess(self, image):
         input_img, ratio, pad = letterbox(image, self.input_shape)
@@ -248,7 +234,7 @@ class TextDetector:
 
     def detect(self, image):
         preprocessed_image, ratio, pad = self.preprocess(image)
-        outputs = self.rknn.inference(inputs=[preprocessed_image], data_format="NCHW")
+        outputs = self.rknn_model.inference(inputs=[preprocessed_image], data_format="NCHW")
         return self.postprocess(outputs[0], image, ratio, pad)
 
     def get_tl_tr_br_bl(self, points, padding_x, padding_y, image_width, image_height):

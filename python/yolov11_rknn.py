@@ -1,11 +1,48 @@
 import cv2
-import onnxruntime as ort
 import numpy as np
+from rknn_model import RKNN_Model
 import glob
 import os
 import time
 
-class Yolov11TextDetector:
+
+def letterbox(
+    im,
+    new_shape,
+    color=(114, 114, 114),
+    auto=False,
+    scaleFill=False,
+    scaleup=True,
+    stride=32,
+):
+    shape = im.shape[:2]
+    if isinstance(new_shape, int):
+        new_shape = (new_shape, new_shape)
+    r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+    if not scaleup:
+        r = min(r, 1.0)
+    ratio = r, r
+    new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
+    dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]
+    if auto:
+        dw, dh = np.mod(dw, stride), np.mod(dh, stride)
+    elif scaleFill:
+        dw, dh = 0.0, 0.0
+        new_unpad = (new_shape[1], new_shape[0])
+        ratio = new_shape[1] / shape[1], new_shape[0] / shape[0]
+    dw /= 2
+    dh /= 2
+    if shape[::-1] != new_unpad:
+        im = cv2.resize(im, new_unpad, interpolation=cv2.INTER_LINEAR)
+    top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+    left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+    im = cv2.copyMakeBorder(
+        im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color
+    )
+    return im, ratio, (dw, dh)
+
+
+class Yolov11RKNN:
     def __init__(
         self,
         model_file,
@@ -18,41 +55,16 @@ class Yolov11TextDetector:
         self.iou_threshold = iou_threshold
         self.class_names = class_names or []
         self.image_size = (320, 320)
-
-        providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
-        self.session = ort.InferenceSession(model_file, providers=providers)
-        self.input_name = self.session.get_inputs()[0].name
-        input_shape = self.session.get_inputs()[0].shape
-        if len(input_shape) == 4:
-            self.image_size = (input_shape[3], input_shape[2])
+        self.rknn_model = RKNN_Model(model_file)
 
     def preprocess(self, input_img):
-        img_height, img_width = input_img.shape[:2]
-        input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB)
-
-        r = min(self.image_size[0] / img_width, self.image_size[1] / img_height)
-        new_unpad = int(round(img_width * r)), int(round(img_height * r))
-        dw, dh = self.image_size[0] - new_unpad[0], self.image_size[1] - new_unpad[1]
-        dw, dh = dw / 2, dh / 2
-
-        top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
-        left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-
-        input_img = cv2.resize(input_img, new_unpad, interpolation=cv2.INTER_LINEAR)
-        input_img = cv2.copyMakeBorder(
-            input_img,
-            top,
-            bottom,
-            left,
-            right,
-            cv2.BORDER_CONSTANT,
-            value=(255, 255, 255),
-        )
-        input_img = input_img / 255.0
+        input_img, ratio, pad = letterbox(input_img, self.image_size)
         input_img = input_img.transpose(2, 0, 1)
-        return input_img[np.newaxis, :, :, :].astype(np.float32)
+        input_img = input_img[np.newaxis, :, :, :].astype(np.float32)
+        input_img = np.ascontiguousarray(input_img)
+        return input_img, ratio, pad
 
-    def postprocess(self, outputs, image_height, image_width):
+    def postprocess(self, outputs, image_height, image_width, ratio, pad):
         boxes_output = outputs[0][0]
         scores_output = outputs[1][0]
         classes_output = outputs[2][0]
@@ -66,10 +78,8 @@ class Yolov11TextDetector:
         if len(valid_boxes) == 0:
             return np.array([]), np.array([]), np.array([])
 
-        r = min(self.image_size[0] / image_width, self.image_size[1] / image_height)
-        new_unpad = int(round(image_width * r)), int(round(image_height * r))
-        dw, dh = self.image_size[0] - new_unpad[0], self.image_size[1] - new_unpad[1]
-        dw, dh = dw / 2, dh / 2
+        r = ratio[0]
+        dw, dh = pad
 
         final_boxes = []
         final_scores = []
@@ -125,9 +135,9 @@ class Yolov11TextDetector:
     def detect(self, image):
         if image is None:
             raise ValueError("Input image is None")
-        preprocessed_image = self.preprocess(image)
-        outputs = self.session.run(None, {self.input_name: preprocessed_image})
-        return self.postprocess(outputs, image.shape[0], image.shape[1])
+        preprocessed_image, ratio, pad = self.preprocess(image)
+        outputs = self.rknn_model.inference(inputs=[preprocessed_image], data_format="NCHW")
+        return self.postprocess(outputs, image.shape[0], image.shape[1], ratio, pad)
 
     def predict(self, image):
         boxes, scores, classes = self.detect(image)
@@ -185,11 +195,11 @@ class Yolov11TextDetector:
 
 
 def main():
-    model_path = "models/text_recognition_yolov11.onnx"
+    model_path = "models/text_recognition_yolov11_quantized.rknn"
     classes_path = "models/text_recognition_yolov11_classes.txt"
     with open(classes_path, "r") as f:
         class_names = [line.strip() for line in f.readlines()]
-    detector = Yolov11TextDetector(
+    detector = Yolov11RKNN(
         model_path, score_threshold=0.5, iou_threshold=0.5, class_names=class_names
     )
     DATA_DIR = "models/text_crop"
@@ -200,10 +210,16 @@ def main():
         boxes, scores, classes = detector.detect(image)
         t2 = time.time()
         print(f"Detection time: {t2 - t1} seconds")
+        text, confidences = detector.predict(image)
+        print(f"Text: {text}, Confidences: {confidences}")
         if len(boxes) > 0:
             result_image = detector.draw(image, boxes, scores, classes)
-            cv2.imwrite(os.path.join(OUTPUT_DIR, os.path.basename(image_path)), result_image)
-            print(f"Result saved as {os.path.join(OUTPUT_DIR, os.path.basename(image_path))}")
+            cv2.imwrite(
+                os.path.join(OUTPUT_DIR, os.path.basename(image_path)), result_image
+            )
+            print(
+                f"Result saved as {os.path.join(OUTPUT_DIR, os.path.basename(image_path))}"
+            )
         else:
             print("No objects detected.")
 
