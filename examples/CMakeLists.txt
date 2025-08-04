@@ -1,0 +1,10 @@
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+add_executable(test_face_detection test_face_detection.cpp)
+target_link_libraries(test_face_detection ai_solution )
+
+add_executable(test_obb_detection test_obb_detection.cpp)
+target_link_libraries(test_obb_detection ai_solution )
+
+add_executable(test_text_recognition test_text_recognition.cpp)
+target_link_libraries(test_text_recognition ai_solution )

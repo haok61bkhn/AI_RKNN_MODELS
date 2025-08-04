@@ -1,0 +1,4 @@
+text_crop/01_08_25_1_2.jpg
+text_crop/01_08_25_1_3.jpg
+text_crop/01_08_25_1_4.jpg
+text_crop/01_08_25_1_12.jpg

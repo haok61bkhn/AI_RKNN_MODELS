@@ -1,0 +1,159 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						3
+					],
+					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "ai_src",
+					"childIndexes" : 
+					[
+						2
+					],
+					"jsonFile" : "directory-ai_src-dca37e0998c219f272c6.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "ai_src",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "ai_src/face_tracking",
+					"jsonFile" : "directory-ai_src.face_tracking-4ee8d6043d8af4bc0c0a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 0,
+					"source" : "ai_src/face_tracking",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "examples",
+					"jsonFile" : "directory-examples-1c8b83b621b6ef38a245.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "examples",
+					"targetIndexes" : 
+					[
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					],
+					"name" : "main",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "ByteTrackEigen::@7f1acdebf6c6d8e25d88",
+					"jsonFile" : "target-ByteTrackEigen-be8f2303a3f34ba38f70.json",
+					"name" : "ByteTrackEigen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "ai_solution::@48f6ca62113dae5862ca",
+					"jsonFile" : "target-ai_solution-6bdbf0102663463bcf64.json",
+					"name" : "ai_solution",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "main::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-main-60a3fed6fe0abd9a7ae4.json",
+					"name" : "main",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "test_face_detection::@714eac15f71a94114fdf",
+					"jsonFile" : "target-test_face_detection-8520dfd12aaaa6d70d12.json",
+					"name" : "test_face_detection",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "test_obb_detection::@714eac15f71a94114fdf",
+					"jsonFile" : "target-test_obb_detection-3d4500d0b884b0ca0f04.json",
+					"name" : "test_obb_detection",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "test_text_recognition::@714eac15f71a94114fdf",
+					"jsonFile" : "target-test_text_recognition-bb5c2c65be38f040acd7.json",
+					"name" : "test_text_recognition",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/orangepi/AI_RK3588/build",
+		"source" : "/home/orangepi/AI_RK3588"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

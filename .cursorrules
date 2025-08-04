@@ -1,0 +1,23 @@
+Do not write comments in the code.
+
+Ensure the code is clean, optimized, and concise.
+
+C++ Formatting:
+
+Function names: Use PascalCase (e.g., GetData()).
+
+Variable names: Use snake_case (e.g., frame_count).
+
+Class names: Use PascalCase without underscores (e.g., VideoProcessor).
+
+Header guards: Use #ifndef with UPPER_CASE and underscores (e.g., #ifndef VIDEO_PROCESSOR_H).
+
+Python Formatting:
+
+Function names: Use snake_case (e.g., get_data()).
+
+Variable names: Use snake_case (e.g., frame_count).
+
+Class names: Use PascalCase without underscores (e.g., VideoProcessor).
+
+Do not explain the code or add any documentation — only output the raw code following the rules above.

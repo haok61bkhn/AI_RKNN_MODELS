@@ -1,0 +1,6 @@
+/home/orangepi/AI_RK3588/ai_src/build/CMakeFiles/ai_solution.dir
+/home/orangepi/AI_RK3588/ai_src/build/CMakeFiles/edit_cache.dir
+/home/orangepi/AI_RK3588/ai_src/build/CMakeFiles/rebuild_cache.dir
+/home/orangepi/AI_RK3588/ai_src/build/face_tracking/CMakeFiles/ByteTrackEigen.dir
+/home/orangepi/AI_RK3588/ai_src/build/face_tracking/CMakeFiles/edit_cache.dir
+/home/orangepi/AI_RK3588/ai_src/build/face_tracking/CMakeFiles/rebuild_cache.dir
